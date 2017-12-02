@@ -3,6 +3,8 @@ New methods for some builtin types like int, str, dict, list, ...
 
 ## Reqirements
 * **frobiddenfruit**
+* **py-term**
+* **requests**
 
 ## Usage
 ```python
@@ -12,14 +14,12 @@ install()
 
 # conversion
 a = 100
-a.cstr()
+a.cstr() # '100'
 
->>> "100"
 
 # iterables
 l = [1, 2, 3]
-l.empty()
+l.empty() # False
 
->>> False
 ```
 

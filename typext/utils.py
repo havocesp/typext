@@ -1,22 +1,66 @@
-from typing import Union
+import re
+from typing import Union, Callable
+
+from term import green, red, dim, format as fmt
+from decorator import decorator
+
 
 ctype = isinstance
 
 lfmt = lambda self, fmt_: fmt_.format(self)
-lcnum = lambda self, ndecims=5: cnum(str(self), ndecims=ndecims)
-lnone = lambda self=None: self is None
-lnotnone = lambda self=None: self is not None
+lcnum = lambda self, ndecims = 5: cnum(str(self), ndecims = ndecims)
+lnone = lambda self = None: self is None
+lnotnone = lambda self = None: self is not None
 lcstr = lambda self: str(self)
 lctype = lambda self, tp: isinstance(self, tp)
 
 
-def fmt(self, fmt_: str = '{}'):
-    return fmt_.format(self)
+@decorator
+def saferun(fn: Callable, *args, **kwargs):
+    result = None
+    exceptions = list()
+
+    if args and len(args) > 0:
+
+        for exception in args:
+
+            if isinstance(exception, BaseException):
+                exceptions = [exception]
+
+        if len(exceptions) > 0:
+            try:
+                result = fn(*args, **kwargs)
+            except exceptions as err:
+                errmsg = kwargs.get('errmsg')
+                print(errmsg if errmsg else str(err))
+        else:
+            result = fn(*args, **kwargs)
+    return result
 
 
-def is_strnum(num_as_str):
-    import re
-    return re.fullmatch(r'[+-]?[0-9]+\.?[0-9]*', str(num_as_str)) is not None
+@saferun
+def _redneg(value, fmt_: str) -> str:
+    result = round(float(value), 8)
+
+    if result > 0.0:
+        result = fmt(fmt_.format(result), green)
+
+    elif result < 0.0:
+        result = fmt(fmt_.format(result), red)
+
+    elif result == 0.0:
+        result = fmt(fmt_.format(result), dim)
+
+    else:
+        result = value
+
+    return result
+
+
+def strfmt_check(strftm: str):
+    regex = r'^{(:(.[><^]|[><^])?(\+?[0-9]*(\.[0-9]+f|d)?|[0-9]*)?)?}$'
+
+    return re.fullmatch(regex, strftm) is not None
 
 
 def isint(value: int) -> bool:
@@ -31,21 +75,9 @@ def isnum(value: Union[float, int]) -> bool:
     return ctype(value, (float, int))
 
 
-def cflt(value: Union[float, int, str]):
-    value = str(value).strip()
-    if is_strnum(value):
-        try:
-            value = float(str(value).strip().replace(',', '.'))
-        except (ValueError, TypeError) as err:
-            value = 0.0
-        finally:
-            return float(value)
-    else:
-        raise ValueError('{} is not a valid num'.format(value))
-
-
 def cnum(value: str, infer_int: bool = True, ndecims: int = 5) -> Union[float, int]:
     _num = round(float(value), ndecims)
+
     if int(_num) != 0:
         if infer_int and _num % int(_num) == 0:
             _num = int(_num)
