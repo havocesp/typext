@@ -1,22 +1,47 @@
 import re
-from typing import Union, Callable
+from decimal import Decimal
+from typing import Union, Callable, Iterable, Mapping
 
-from term import green, red, dim, format as fmt
 from decorator import decorator
-
+from term import green, red, dim, format as fmt
 
 ctype = isinstance
 
-lfmt = lambda self, fmt_: fmt_.format(self)
-lcnum = lambda self, ndecims = 5: cnum(str(self), ndecims = ndecims)
-lnone = lambda self = None: self is None
-lnotnone = lambda self = None: self is not None
-lcstr = lambda self: str(self)
-lctype = lambda self, tp: isinstance(self, tp)
+
+def lfmt(self, fmt_):
+    return fmt_.format(self)
+
+
+def lcnum(self, ndecims=5):
+    return cnum(str(self), ndecims=ndecims)
+
+
+def lnone(self=None):
+    return self is None
+
+
+def lnotnone(self=None):
+    return self is not None
+
+
+def lcstr(self):
+    return str(self)
+
+
+def lctype(self, tp):
+    return isinstance(self, tp)
 
 
 @decorator
 def saferun(fn: Callable, *args, **kwargs):
+    """
+    Decorator to intercept possible Exceptions types (supplied as args) raised on decorated function.
+
+    :param fn: the callable decorated by this function
+    :param args: Exceptions to catch during callable execution
+    :param kwargs:  Exceptions to catch during callable execution
+
+    """
     result = None
     exceptions = list()
 
@@ -39,7 +64,13 @@ def saferun(fn: Callable, *args, **kwargs):
 
 
 @saferun
-def _redneg(value, fmt_: str) -> str:
+def redneg(value, fmt_: str) -> str:
+    """
+    Takes a value and return a it colored as red if value is negative or green if positive.
+    :param value: value to be colored
+    :param fmt_: overrides default return format string
+    :return: value as red string if negative or green if positive
+    """
     result = round(float(value), 8)
 
     if result > 0.0:
@@ -57,28 +88,86 @@ def _redneg(value, fmt_: str) -> str:
     return result
 
 
-def strfmt_check(strftm: str):
-    regex = r'^{(:(.[><^]|[><^])?(\+?[0-9]*(\.[0-9]+f|d)?|[0-9]*)?)?}$'
+def strfmt_check(strfmt: str) -> bool:
+    """
+    String modern string format validator
+        - Ex. {:.2f} or {:_^})
 
-    return re.fullmatch(regex, strftm) is not None
+    :param strfmt: format to be validate
+    :return: True if no errors
+    """
+    regex = r'^{(:(.[><^]|[><^])?(\+?[0-9]*(\.[0-9]+f|d)?|[0-9]*)?)?}$'
+    return re.fullmatch(regex, strfmt) is not None
 
 
 def isint(value: int) -> bool:
+    """
+    Integer built-in checker.
+
+    :param value: value to be checked
+    :return: True if value is type int
+    """
     return ctype(value, int)
 
 
 def isflt(value: float) -> bool:
+    """
+    Float built-in checker.
+
+    :param value: value to be checked
+    :return: True if value is type float
+    """
     return ctype(value, float)
 
 
 def isnum(value: Union[float, int]) -> bool:
+    """
+    Check if value is a number or not.
+
+    :param value: value to be checked
+    :return: True if value is a num type (int, float)
+    """
     return ctype(value, (float, int))
 
 
-def cnum(value: str, infer_int: bool = True, ndecims: int = 5) -> Union[float, int]:
-    _num = round(float(value), ndecims)
+def _num_parser(value, ndecims: 8):
+    if isinstance(value, Decimal):
+        value = float(value)
+    strval = str(value)
+    try:
+        if '.' in strval or 'e' in strval.lower():
+            r = round(float(strval), ndecims)
+        else:
+            try:
+                r = int(strval)
+            except ValueError:
+                r = round(float(strval), ndecims)
+    except ValueError:
+        r = value
+    return r
 
-    if int(_num) != 0:
-        if infer_int and _num % int(_num) == 0:
-            _num = int(_num)
-    return _num
+
+def cnum(data: Union[Iterable, int, float, Decimal], ndecims: int = 8) -> Union[Iterable, Mapping, float, int]:
+    """
+    Data type infer and parser.
+
+    Accept any Iterable (dict, list, tuple, set, ...) or built-in data types int, float, str, ... and try  to
+    convert it a number data type (int, float)
+    """
+    r = None
+
+    if isinstance(data, str):
+        r = _num_parser(data, ndecims)
+    elif isinstance(data, Mapping):
+        for k, v in data.items():
+            r = v
+            if isinstance(v, Iterable):
+                r = {k: cnum(v, ndecims)}
+    elif isinstance(data, Iterable):
+        for n in data:
+            r = [*n]
+            if isinstance(n, Iterable):
+                r = [*cnum(n, ndecims)]
+    else:
+        r = _num_parser(str(data), ndecims)
+    return r

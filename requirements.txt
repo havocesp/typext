@@ -1,4 +1,0 @@
-decorator
-forbiddenfruit>=0.1.2
-py-term>=0.6
-requests>=2.18.4
