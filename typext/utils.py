@@ -1,3 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+    ===========================================================================
+                            @@@[ PyExt ]@@@
+    ===========================================================================
+    Author:       Daniel J. Umpierrez
+    Version:      0.1.3
+    License:      MIT
+    Created:      01-01-2017
+    GitHub:       https://github.com/havocesp/typext
+    ===========================================================================
+    Description: builtin extended version/typext
+    ===========================================================================
+"""
 import re
 from decimal import Decimal
 from typing import Union, Callable, Iterable, Mapping
@@ -12,24 +26,16 @@ def lfmt(self, fmt_):
     return fmt_.format(self)
 
 
-def lcnum(self, ndecims=5):
-    return cnum(str(self), ndecims=ndecims)
-
-
-def lnone(self=None):
+def is_none(self=None):
     return self is None
 
 
-def lnotnone(self=None):
+def not_none(self=None):
     return self is not None
 
 
-def lcstr(self):
+def is_str(self):
     return str(self)
-
-
-def lctype(self, tp):
-    return isinstance(self, tp)
 
 
 @decorator
@@ -100,7 +106,7 @@ def strfmt_check(strfmt: str) -> bool:
     return re.fullmatch(regex, strfmt) is not None
 
 
-def isint(value: int) -> bool:
+def is_int(value: int) -> bool:
     """
     Integer built-in checker.
 
@@ -110,7 +116,7 @@ def isint(value: int) -> bool:
     return ctype(value, int)
 
 
-def isflt(value: float) -> bool:
+def is_flt(value: float) -> bool:
     """
     Float built-in checker.
 
@@ -120,14 +126,14 @@ def isflt(value: float) -> bool:
     return ctype(value, float)
 
 
-def isnum(value: Union[float, int]) -> bool:
+def is_num(value: Union[float, int]) -> bool:
     """
     Check if value is a number or not.
 
     :param value: value to be checked
     :return: True if value is a num type (int, float)
     """
-    return ctype(value, (float, int))
+    return ctype(value, (float, int, Decimal))
 
 
 def _num_parser(value, ndecims: 8):

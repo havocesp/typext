@@ -4,10 +4,10 @@
                             @@@[ PyExt ]@@@
     ===========================================================================
     Author:       Daniel J. Umpierrez
-    Version:      0.1.2
+    Version:      0.1.3
     License:      MIT
     Created:      01-01-2017
-    GitHub:       https://github.com/havocesp
+    GitHub:       https://github.com/havocesp/typext
     ===========================================================================
     Description: builtin extended version/typext
     ===========================================================================
@@ -20,6 +20,7 @@ from functools import reduce, partial
 from itertools import dropwhile, cycle, repeat, takewhile
 from math import nan
 from typing import Iterable
+from urllib.parse import urljoin
 
 import requests
 from forbiddenfruit import curse as improve
@@ -195,7 +196,9 @@ def _numbers():
         improve(t, 'zero', lambda self: cnum(self) == 0.0)
         improve(t, 'nonzero', lambda self: cnum(self) != 0.0)
         improve(t, 'nozero', lambda self: cnum(self) != 0.0)
-        # improve(t, 'rnd', lambda self, ndecims = 2: round(float(self), ndecims))
+        improve(t, 'percent', lambda self, percent, precision=5: cnum(self) * (1.0 + cnum(percent, precision)))
+        improve(t, 'rnd', lambda self, ndecims=8: cnum(self, ndecims))
+        improve(t, 'abs', lambda self: cnum(self) * -1.0 if cnum(self) < 0.0 else cnum(self))
 
 
 def _functional_iterables():
@@ -248,7 +251,7 @@ def _functional_iterables():
 
 
 def _json():
-    improve(str, 'json', property(lambda self: json.loads(self, parse_float=cnum, parse_int=cnum)))
+    improve(str, 'json', property(lambda self: cnum(json.loads(self))))
     for t in _JSON_ROOT_TYPES:
         improve(t, 'to_json', property(lambda self: json.dumps(self)))
         improve(t, 'as_json', property(lambda self: json.dumps(self)))
@@ -257,16 +260,17 @@ def _json():
 def _requests():
     class RequestsWrapper:
 
-        def __init__(self, url: str):
-            self.url = url
+        def __init__(self, url: str, **params):
+            self.url = urljoin(url, params)
 
         get = property(lambda self: partial(requests.get, self.url))
-        post = property(lambda self: partial(requests.post, self.url))
+        post = property(lambda self, **kwargs: partial(requests.post, self.url, **kwargs))
         head = property(lambda self: partial(requests.head, self.url))
         options = property(lambda self: partial(requests.options, self.url))
 
     improve(str, 'request', property(lambda self: RequestsWrapper(self)))
     improve(str, 'fetch', property(lambda self: requests.get(self).text))
+    improve(str, 'get_json', property(lambda self: cnum(requests.get(self).json())))
 
 
 def install(extras=False):

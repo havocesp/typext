@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='typext',
-    version='0.1.2',
+    version='0.1.3',
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     url='https://github.com/havocesp/typext',
     license='Apache 2.0',
