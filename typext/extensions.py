@@ -5,7 +5,7 @@
     ===========================================================================
     Author:       Daniel J. Umpierrez
     Version:      0.1.3
-    License:      MIT
+    License:      UNLICENSE
     Created:      01-01-2017
     GitHub:       https://github.com/havocesp/typext
     ===========================================================================
