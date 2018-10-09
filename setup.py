@@ -5,7 +5,7 @@ setup(
     version='0.1.3',
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     url='https://github.com/havocesp/typext',
-    license='Apache 2.0',
+    license='UNLICENSE',
     author='Daniel J. Umpierrez',
     author_email='',
     description='Enhanced Python builtin types.',
@@ -15,7 +15,7 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Open source library with some useful routines.',
         # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: UNLICENSE License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
