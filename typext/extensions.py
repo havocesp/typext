@@ -269,8 +269,8 @@ def _requests():
         options = property(lambda self: partial(requests.options, self.url))
 
     improve(str, 'request', property(lambda self: RequestsWrapper(self)))
-    improve(str, 'fetch', property(lambda self: requests.get(self).text))
-    improve(str, 'get_json', property(lambda self: cnum(requests.get(self).json())))
+    improve(str, 'fetch', property(lambda self: requests.get(self, timeout=60).text))
+    improve(str, 'get_json', property(lambda self: cnum(requests.get(self, timeout=60).json(timeout=60))))
 
 
 def install(extras=False):
