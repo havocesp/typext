@@ -30,6 +30,7 @@ from term import (
 )
 
 from .utils import cnum, redneg
+import math
 
 _JSON_ROOT_TYPES = [dict, list]
 _ITERABLE = {tuple, list, set, str, dict, range, map, filter, zip}
@@ -192,10 +193,10 @@ def _numbers():
         improve(t, 'neg', lambda self: cnum(self) < 0.0)
         improve(t, 'ispos', lambda self: cnum(self) > 0.0)
         improve(t, 'pos', lambda self: cnum(self) > 0.0)
-        improve(t, 'iszero', lambda self: cnum(self) == 0.0)
-        improve(t, 'zero', lambda self: cnum(self) == 0.0)
-        improve(t, 'nonzero', lambda self: cnum(self) != 0.0)
-        improve(t, 'nozero', lambda self: cnum(self) != 0.0)
+        improve(t, 'iszero', lambda self: math.isclose(cnum(self), 0.0, rel_tol=1e-09, abs_tol=0.0))
+        improve(t, 'zero', lambda self: math.isclose(cnum(self), 0.0, rel_tol=1e-09, abs_tol=0.0))
+        improve(t, 'nonzero', lambda self: not math.isclose(cnum(self), 0.0, rel_tol=1e-09, abs_tol=0.0))
+        improve(t, 'nozero', lambda self: not math.isclose(cnum(self), 0.0, rel_tol=1e-09, abs_tol=0.0))
         improve(t, 'percent', lambda self, percent, precision=5: cnum(self) * (1.0 + cnum(percent, precision)))
         improve(t, 'rnd', lambda self, ndecims=8: cnum(self, ndecims))
         improve(t, 'abs', lambda self: cnum(self) * -1.0 if cnum(self) < 0.0 else cnum(self))

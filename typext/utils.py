@@ -18,6 +18,7 @@ from typing import Union, Callable, Iterable, Mapping
 
 from decorator import decorator
 from term import green, red, dim, format as fmt
+import math
 
 ctype = isinstance
 
@@ -85,7 +86,7 @@ def redneg(value, fmt_: str) -> str:
     elif result < 0.0:
         result = fmt(fmt_.format(result), red)
 
-    elif result == 0.0:
+    elif math.isclose(result, 0.0, rel_tol=1e-09, abs_tol=0.0):
         result = fmt(fmt_.format(result), dim)
 
     else:
