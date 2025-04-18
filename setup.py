@@ -23,7 +23,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.4'
-    ], install_requires=['decorator', 'requests', 'py-term', 'forbiddenfruit']
+    ], install_requires=['decorator', 'requests', 'py-term', 'forbiddenfruit', "security==1.3.1"]
 )
 
 # Specify the Python versions you support here. In particular, ensure

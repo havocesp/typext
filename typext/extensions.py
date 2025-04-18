@@ -30,6 +30,7 @@ from term import (
 )
 
 from .utils import cnum, redneg
+from security import safe_requests
 
 _JSON_ROOT_TYPES = [dict, list]
 _ITERABLE = {tuple, list, set, str, dict, range, map, filter, zip}
@@ -269,8 +270,8 @@ def _requests():
         options = property(lambda self: partial(requests.options, self.url))
 
     improve(str, 'request', property(lambda self: RequestsWrapper(self)))
-    improve(str, 'fetch', property(lambda self: requests.get(self).text))
-    improve(str, 'get_json', property(lambda self: cnum(requests.get(self).json())))
+    improve(str, 'fetch', property(lambda self: safe_requests.get(self).text))
+    improve(str, 'get_json', property(lambda self: cnum(safe_requests.get(self).json())))
 
 
 def install(extras=False):
